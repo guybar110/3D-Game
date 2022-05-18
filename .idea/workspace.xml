@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="476fc5d7-526f-4a59-8c5f-9592478da755" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="CodeInsightWorkspaceSettings">
+    <option name="optimizeImportsOnTheFly" value="true" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="FxmlFile" />
+        <option value="JavaFXApplication" />
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectId" id="22E5JBwjAejIOHSnjMyJFD0ikSi" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/res" />
+    <property name="settings.editor.selected.configurable" value="preferences.sourceCode.Java" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CreateClassDialog.RecentsKey">
+      <recent name="" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Guy\IdeaProjects\3D Game\src\res" />
+      <recent name="C:\Users\Guy\IdeaProjects\3D Game\src" />
+      <recent name="C:\Users\Guy\IdeaProjects\3D Game\src\raytracer" />
+      <recent name="C:\Users\Guy\IdeaProjects\3D Game\src\gui" />
+      <recent name="C:\Users\Guy\IdeaProjects\3D Game\src\math" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Application.Main (1)">
+    <configuration name="Client" type="Application" factoryName="Application" singleton="false" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Client" />
+      <module name="3D Game" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Main (1)" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Main" />
+      <module name="3D Game" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="raytracing.Main" />
+      <module name="3D Game" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="raytracing.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="raytracer.Main" />
+      <module name="3D Game" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="raytracer.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Server" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="Server" />
+      <module name="3D Game" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="TriangleRaster" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="TriangleRaster" />
+      <module name="3D Game" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Application.Client" />
+      <item itemvalue="Application.Main" />
+      <item itemvalue="Application.Main (1)" />
+      <item itemvalue="Application.Server" />
+      <item itemvalue="Application.TriangleRaster" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.Main (1)" />
+        <item itemvalue="Application.Client" />
+        <item itemvalue="Application.Server" />
+        <item itemvalue="Application.Main" />
+        <item itemvalue="Application.TriangleRaster" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="ServiceViewManager">
+    <option name="viewStates">
+      <list>
+        <serviceView>
+          <treeState>
+            <expand />
+            <select />
+          </treeState>
+        </serviceView>
+      </list>
+    </option>
+  </component>
+  <component name="StructureViewFactory">
+    <option name="ACTIVE_ACTIONS" value=",VISIBILITY_SORTER,ALPHA_COMPARATOR" />
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="476fc5d7-526f-4a59-8c5f-9592478da755" name="Default Changelist" comment="" />
+      <created>1639389831396</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1639389831396</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName="*.obj" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="414" y="170" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1652789053074">
+      <screen x="0" y="0" width="1920" height="1032" />
+    </state>
+    <state x="414" y="170" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1032@0.0.1920.1032" timestamp="1652789053074" />
+    <state x="730" y="216" key="#com.intellij.ide.util.MemberChooser" timestamp="1652806395871">
+      <screen x="0" y="0" width="1920" height="1032" />
+    </state>
+    <state x="730" y="216" key="#com.intellij.ide.util.MemberChooser/0.0.1920.1032@0.0.1920.1032" timestamp="1652806395871" />
+    <state x="0" y="0" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1652523219531">
+      <screen x="0" y="0" width="1920" height="1032" />
+    </state>
+    <state x="0" y="0" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.0.1920.1032@0.0.1920.1032" timestamp="1652523219531" />
+    <state x="690" y="262" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1652812867934">
+      <screen x="0" y="0" width="1920" height="1032" />
+    </state>
+    <state x="690" y="262" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1920.1032@0.0.1920.1032" timestamp="1652812867934" />
+    <state width="1877" height="190" key="GridCell.Tab.0.bottom" timestamp="1652851020907">
+      <screen x="0" y="0" width="1920" height="1032" />
+    </state>
+    <state width="1877" height="190" key="GridCell.Tab.0.bottom/0.0.1920.1032@0.0.1920.1032" timestamp="1652851020907" />
+    <state width="1877" height="190" key="GridCell.Tab.0.center" timestamp="1652851020907">
+      <screen x="0" y="0" width="1920" height="1032" />
+    </state>
+    <state width="1877" height="190" key="GridCell.Tab.0.center/0.0.1920.1032@0.0.1920.1032" timestamp="1652851020907" />
+    <state width="1877" height="190" key="GridCell.Tab.0.left" timestamp="1652851020907">
+      <screen x="0" y="0" width="1920" height="1032" />
+    </state>
+    <state width="1877" height="190" key="GridCell.Tab.0.left/0.0.1920.1032@0.0.1920.1032" timestamp="1652851020907" />
+    <state width="1877" height="190" key="GridCell.Tab.0.right" timestamp="1652851020907">
+      <screen x="0" y="0" width="1920" height="1032" />
+    </state>
+    <state width="1877" height="190" key="GridCell.Tab.0.right/0.0.1920.1032@0.0.1920.1032" timestamp="1652851020907" />
+    <state x="702" y="144" key="refactoring.ChangeSignatureDialog" timestamp="1652799081905">
+      <screen x="0" y="0" width="1920" height="1032" />
+    </state>
+    <state x="702" y="144" key="refactoring.ChangeSignatureDialog/0.0.1920.1032@0.0.1920.1032" timestamp="1652799081905" />
+    <state x="616" y="238" key="run.anything.popup" timestamp="1652790723771">
+      <screen x="0" y="0" width="1920" height="1032" />
+    </state>
+    <state x="616" y="238" key="run.anything.popup/0.0.1920.1032@0.0.1920.1032" timestamp="1652790723771" />
+    <state x="616" y="169" width="672" height="676" key="search.everywhere.popup" timestamp="1652822249687">
+      <screen x="0" y="0" width="1920" height="1032" />
+    </state>
+    <state x="616" y="169" width="672" height="676" key="search.everywhere.popup/0.0.1920.1032@0.0.1920.1032" timestamp="1652822249687" />
+  </component>
+</project>
