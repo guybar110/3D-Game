@@ -48,4 +48,14 @@ public class GameObject
     {
     
     }
+    
+    void setColor(Color c)
+    {
+        color = c;
+        
+        for (Triangle t : triangles)
+        {
+            t.color = c;
+        }
+    }
 }

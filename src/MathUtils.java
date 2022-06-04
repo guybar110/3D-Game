@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class MathUtils
 {
     public static Vector multiply(float[][] matrix, Vector vector)
@@ -69,7 +71,7 @@ public class MathUtils
     public static float[][] makeIdentityMatrix(int dimensions)
     {
         float[][] identityMatrix = new float[dimensions][dimensions];
-    
+        
         for (int i = 0; i < dimensions; i++)
         {
             identityMatrix[i][i] = 1.0f;
@@ -190,83 +192,107 @@ public class MathUtils
         return subtract(new Vector(x, y, z), collisionSphereOrigin).getLength2() < collisionSphereRadius * collisionSphereRadius;
     }
     
-    public static boolean collisionDetection(Vector collisionSphereOrigin, float collisionSphereRadius, GameObject object)
+    public static Vector collisionDetection(Vector collisionSphereOrigin, float collisionSphereRadius, ArrayList<GameObject> objects)
     {
-        for (Triangle t : object.triangles)
+        int collisionCount = 0;
+        Vector shiftDelta = new Vector(0);
+        
+        for (GameObject object : objects)
         {
-            float collisionSphereRadius2 = collisionSphereRadius * collisionSphereRadius;
-    
-            boolean fullyInsideTriangle = false;
-            boolean outsideAllVertices = true;
-            boolean outsideAllEdges = true;
-            
-            Vector line1 = MathUtils.subtract(t.points[1], t.points[0]);
-            Vector line2 = MathUtils.subtract(t.points[2], t.points[0]);
-            
-            Vector normal = cross(line1, line2);
-            
-            if (cross(line1, line2).getLength() == 0)
+            if (object instanceof Sphere)
             {
-                continue;
-            }
-            
-            normal.normalize();
-    
-//            if (normal.y > 0.1f)
-//            {
-//                continue;
-//            }
-            
-            float d = -dot(normal, t.points[0]);
-            float distanceFromPlane = dot(normal, collisionSphereOrigin) + d;
-    
-            if (Math.abs(distanceFromPlane) > collisionSphereRadius)
-            {
-                continue;
-            }
-    
-            Vector a = subtract(t.points[1], t.points[0]);
-            Vector b = subtract(t.points[2], t.points[1]);
-            Vector c = subtract(t.points[0], t.points[2]);
-            
-            Vector planeX = a.normalized();
-            Vector planeY = normal.cross(a).normalized();
-            
-            Vector2D planePos2D = projectInto2D(planeX, planeY, collisionSphereOrigin);
-            Vector2D[] trianglePoints2D = new Vector2D[]{projectInto2D(planeX, planeY, t.points[0]), projectInto2D(planeX, planeY, t.points[1]), projectInto2D(planeX, planeY, t.points[2])};
-            
-            if (isInside2DTriangle(planePos2D, trianglePoints2D))
-            {
-                fullyInsideTriangle = true;
-            }
-            
-            for (int i = 0; i < 3; i++)
-            {
-                if (subtract(t.points[i], collisionSphereOrigin).getLength2() <= collisionSphereRadius2)
+                boolean collision = sphereSphereCollisionDetection(collisionSphereOrigin, collisionSphereRadius, (Sphere) object);
+                
+                if (collision)
                 {
-                    outsideAllVertices = false;
+                    collisionCount++;
                 }
+                continue;
             }
             
-            if
-            (
-                intersectRaySegmentSphere(t.points[0], a, collisionSphereOrigin, collisionSphereRadius2).intersection ||
-                intersectRaySegmentSphere(t.points[1], b, collisionSphereOrigin, collisionSphereRadius2).intersection ||
-                intersectRaySegmentSphere(t.points[2], c, collisionSphereOrigin, collisionSphereRadius2).intersection
-            )
-            {
-                outsideAllEdges = false;
-            }
-            
-            if (outsideAllEdges && outsideAllVertices && !fullyInsideTriangle)
+            if (object.collisionBox.floorLevel == collisionSphereOrigin.y - collisionSphereRadius)
             {
                 continue;
             }
             
-            return true;
+            for (Triangle t : object.triangles)
+            {
+                float collisionSphereRadius2 = collisionSphereRadius * collisionSphereRadius;
+                
+                boolean fullyInsideTriangle = false;
+                boolean outsideAllVertices = true;
+                boolean outsideAllEdges = true;
+                
+                Vector line1 = MathUtils.subtract(t.points[1], t.points[0]);
+                Vector line2 = MathUtils.subtract(t.points[2], t.points[0]);
+                
+                Vector normal = cross(line1, line2);
+                
+                if (cross(line1, line2).getLength() == 0)
+                {
+                    continue;
+                }
+                
+                normal.normalize();
+                
+                float d = -dot(normal, t.points[0]);
+                float distanceFromPlane = dot(normal, collisionSphereOrigin) + d;
+                
+                if (Math.abs(distanceFromPlane) > collisionSphereRadius)
+                {
+                    continue;
+                }
+                
+                Vector a = subtract(t.points[1], t.points[0]);
+                Vector b = subtract(t.points[2], t.points[1]);
+                Vector c = subtract(t.points[0], t.points[2]);
+                
+                Vector planeX = a.normalized();
+                Vector planeY = normal.cross(a).normalized();
+                
+                Vector2D planePos2D = projectInto2D(planeX, planeY, collisionSphereOrigin);
+                Vector2D[] trianglePoints2D = new Vector2D[]{projectInto2D(planeX, planeY, t.points[0]), projectInto2D(planeX, planeY, t.points[1]), projectInto2D(planeX, planeY, t.points[2])};
+                
+                if (isInside2DTriangle(planePos2D, trianglePoints2D))
+                {
+                    fullyInsideTriangle = true;
+                }
+                
+                for (int i = 0; i < 3; i++)
+                {
+                    if (subtract(t.points[i], collisionSphereOrigin).getLength2() <= collisionSphereRadius2)
+                    {
+                        outsideAllVertices = false;
+                    }
+                }
+                
+                if
+                (
+                    intersectRaySegmentSphere(t.points[0], a, collisionSphereOrigin, collisionSphereRadius2).intersection ||
+                        intersectRaySegmentSphere(t.points[1], b, collisionSphereOrigin, collisionSphereRadius2).intersection ||
+                        intersectRaySegmentSphere(t.points[2], c, collisionSphereOrigin, collisionSphereRadius2).intersection
+                )
+                {
+                    outsideAllEdges = false;
+                }
+                
+                if (outsideAllEdges && outsideAllVertices && !fullyInsideTriangle)
+                {
+                    continue;
+                }
+                
+                shiftDelta.add(multiply(normal, collisionSphereRadius - distanceFromPlane));
+                collisionCount++;
+            }
         }
         
-        return false;
+        if (collisionCount != 0)
+        {
+            shiftDelta.divide(collisionCount);
+            return shiftDelta.normalized();
+        }
+        
+        return null;
     }
     
     public static Intersection intersectRaySegmentSphere(Vector rayOrigin, Vector rayDirection, Vector sphereOrigin, float collisionSphereRadius2)
@@ -346,8 +372,6 @@ public class MathUtils
             Intersection intersection1 = intersectPlane(pointOnPlane, planeNormal, insidePoints[0], outsidePoints[0]);
             Intersection intersection2 = intersectPlane(pointOnPlane, planeNormal, insidePoints[0], outsidePoints[1]);
             Triangle smallerTriangle = new Triangle(triangle);
-//            smallerTriangle.color = Color.green;
-//            smallerTriangle.textured = false;
             
             smallerTriangle.points[0] = insidePoints[0];
             smallerTriangle.textureCoordinates[0] = insideTextures[0];

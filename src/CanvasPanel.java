@@ -28,13 +28,13 @@ public class CanvasPanel extends JPanel
     Robot robot;
     BufferedImage screenBuffer;
     Vector netForce = new Vector(0.0f);
-    float fps = 1000.0f;
+    float fps = 25;
     float jumpHeight = 0.5f;
     float speed = 2.0f;
-    float sensitivity = 0.3f;
+    float sensitivity = 0.1f;
     float characterHeight = 1.8f;
     float currentVerticalVelocity = 0.0f;
-    float collisionSphereRadius = 2.0f;
+    float collisionSphereRadius = 0.9f;
     boolean inAir = false;
     long lastFrame;
     
@@ -148,7 +148,7 @@ public class CanvasPanel extends JPanel
         Hyperrectangle southWall = new Hyperrectangle(new Vector(roomSize / 2 + wallThickness, 0.0f, -roomSize / 2), new Vector(-roomSize / 2 - wallThickness, roomHeight, -roomSize / 2 - wallThickness));
         Hyperrectangle eastWall = new Hyperrectangle(new Vector(-roomSize / 2, 0.0f, roomSize / 2 + wallThickness), new Vector(-roomSize / 2 - wallThickness, roomHeight, -roomSize / 2 - wallThickness));
         Hyperrectangle ceiling = new Hyperrectangle(new Vector(-roomSize / 2, roomHeight, -roomSize / 2), new Vector(roomSize / 2, roomHeight + wallThickness, roomSize / 2));
-        Sphere sphere = new Sphere(new Vector(2, 1, 4), 1, 16, 16);
+        Sphere sphere = new Sphere(new Vector(1, 0.5f, 1), 1.0f, 16, 16);
         sphere.color = Color.blue;
         sphere.scale = new Vector(1.0f, 1.0f, 1.0f);        // x y z
         sphere.rotation = new Vector(0.0f, 0.0f, 0.0f);    // pitch yaw roll
@@ -159,7 +159,7 @@ public class CanvasPanel extends JPanel
         objects.add(southWall);
         objects.add(eastWall);
         objects.add(ceiling);
-        objects.add(sphere);
+        // objects.add(sphere);
         
         try
         {
@@ -229,7 +229,7 @@ public class CanvasPanel extends JPanel
                 p.y += object.position.y;
                 p.z += object.position.z;
             }
-            
+    
             object.generateTriangles();
         }
         
@@ -281,7 +281,6 @@ public class CanvasPanel extends JPanel
         sbg2d.setColor(Color.black);
         sbg2d.fillRect(0, 0, getWidth(), getHeight());
         
-        float deltaTime = (System.nanoTime() - lastFrame) / 1e9f;
         lastFrame = System.nanoTime();
         
         float currentSpeed = speed;
@@ -292,7 +291,7 @@ public class CanvasPanel extends JPanel
         }
         
         Vector up = new Vector(0.0f, 1.0f, 0.0f);
-        Vector target = MathUtils.multiply(camera.lookDirection.normalized(), currentSpeed * deltaTime);
+        Vector target = MathUtils.multiply(camera.lookDirection.normalized(), currentSpeed / fps);
         target.y = 0.0f;
         
         Point mousePosition = MouseInfo.getPointerInfo().getLocation();
@@ -321,7 +320,7 @@ public class CanvasPanel extends JPanel
         
         if (inAir) // Apply gravity
         {
-            currentVerticalVelocity -= (GRAVITY * deltaTime);
+            currentVerticalVelocity -= (GRAVITY / fps);
         }
         
         if (keysPressed[0]) // W, move forward
@@ -351,82 +350,29 @@ public class CanvasPanel extends JPanel
             }
         }
         
-        Vector verticalVelocityVector = MathUtils.multiply(up, currentVerticalVelocity * deltaTime);
-        
-//        float closestFloor = 2e16f;
-//
-//        for (GameObject object : objects)
-//        {
-//            float distance = Math.abs(object.collisionBox.floorLevel - (camera.origin.y - characterHeight));
-//
-//            if (distance < closestFloor)
-//            {
-//                closestFloor = distance;
-//            }
-//        }
-//
-//
-//        if (camera.origin.y - characterHeight + currentVerticalVelocity < closestFloor)
-//        {
-//            currentVerticalVelocity = closestFloor - (camera.origin.y - characterHeight);
-//        }
+        Vector verticalVelocityVector = MathUtils.multiply(up, currentVerticalVelocity / fps);
     
         netForce.add(verticalVelocityVector);
+        camera.origin.add(netForce);
+        netForce = new Vector(0);
         
-        int collisionCount = 0;
+        Vector shiftDelta = MathUtils.collisionDetection(new Vector(camera.origin.x, camera.origin.y - characterHeight / 2, camera.origin.z), collisionSphereRadius, objects);
         
-        for (GameObject object : objects)
+        if (shiftDelta != null)
         {
-            boolean collision = false;
-            if (object instanceof Sphere)
+            if (shiftDelta.y < 0)
             {
-                float radius = ((Sphere) object).radius;
-                
-                if (object.scale.x == radius && object.scale.y == radius && object.scale.z == radius)
-                {
-                    collision = MathUtils.sphereSphereCollisionDetection(MathUtils.add(MathUtils.add(camera.origin, netForce), new Vector(0, characterHeight * 0.5f, 0)), collisionSphereRadius, (Sphere) object);
-                }
-                else
-                {
-                    collision = MathUtils.sphereBoxCollisionDetection(MathUtils.add(MathUtils.add(camera.origin, netForce), new Vector(0, characterHeight * 0.5f, 0)), collisionSphereRadius, object.collisionBox);
-                }
-            }
-            else if (object instanceof Hyperrectangle)
-            {
-                collision = MathUtils.collisionDetection(MathUtils.add(MathUtils.add(camera.origin, netForce), new Vector(0, characterHeight * 0.5f, 0)), collisionSphereRadius, object);
-            }
-            
-            if (collision)
-            {
-                collisionCount++;
-                
-                if (camera.origin.y - characterHeight / 2 >= object.collisionBox.floorLevel)
-                {
-                    inAir = false;
-                    currentVerticalVelocity = 0.0f;
-                    // netForce.y = 0.0f;
-                    camera.origin.y = object.collisionBox.floorLevel + characterHeight;
-                }
-                else
-                {
-                    netForce = new Vector(0.0f);
-                }
-                
-                for (Triangle t : object.triangles)
-                {
-                    t.color = Color.red;
-                }
+                inAir = false;
+                shiftDelta.y = 0;
+                currentVerticalVelocity = 0;
             }
             else
             {
-                for (Triangle t : object.triangles)
-                {
-                    t.color = object.color;
-                }
+                netForce = (MathUtils.multiply(shiftDelta, currentSpeed / fps));
             }
         }
-        
-        System.out.println(camera.origin.y);
+    
+        System.out.println(camera.origin);
         
         camera.origin.add(netForce);
         
@@ -476,23 +422,15 @@ public class CanvasPanel extends JPanel
     void calculateTriangles(Triangle triangle, float[][] projectionMatrix, float[][] cameraMatrix)
     {
         ArrayList<Triangle> trianglesToRasterize = new ArrayList<>();
-        Triangle transformedTriangle = new Triangle(), projectedTriangle, viewedTriangle = new Triangle();
+        Triangle projectedTriangle, viewedTriangle = new Triangle();
         
-        for (int i = 0; i < 3; i++)
-        {
-            transformedTriangle.points[i] = triangle.points[i];
-            transformedTriangle.textureCoordinates[i] = triangle.textureCoordinates[i];
-            transformedTriangle.textured = triangle.textured;
-            transformedTriangle.color = triangle.color;
-        }
-        
-        Vector line1 = MathUtils.subtract(transformedTriangle.points[1], transformedTriangle.points[0]);
-        Vector line2 = MathUtils.subtract(transformedTriangle.points[2], transformedTriangle.points[0]);
+        Vector line1 = MathUtils.subtract(triangle.points[1], triangle.points[0]);
+        Vector line2 = MathUtils.subtract(triangle.points[2], triangle.points[0]);
         
         Vector normal = MathUtils.cross(line1, line2);
         normal.normalize();
         
-        Vector cameraRay = MathUtils.subtract(transformedTriangle.points[0], camera.origin);
+        Vector cameraRay = MathUtils.subtract(triangle.points[0], camera.origin);
         
         if (MathUtils.dot(normal, cameraRay) < 0)
         {
@@ -511,16 +449,22 @@ public class CanvasPanel extends JPanel
                     luminance = 0.4f;
                 }
                 
-                viewedTriangle.color = new Color(luminance * transformedTriangle.color.getRed() / 255.0f, luminance * transformedTriangle.color.getGreen() / 255.0f, luminance * transformedTriangle.color.getBlue() / 255.0f);
+                viewedTriangle.color = new Color(luminance * triangle.color.getRed() / 255.0f, luminance * triangle.color.getGreen() / 255.0f, luminance * triangle.color.getBlue() / 255.0f);
             }
             
             for (int i = 0; i < viewedTriangle.points.length; i++)
             {
-                viewedTriangle.points[i] = MathUtils.multiply(cameraMatrix, transformedTriangle.points[i]);
-                viewedTriangle.textureCoordinates[i] = transformedTriangle.textureCoordinates[i];
-                viewedTriangle.textured = transformedTriangle.textured;
+                viewedTriangle.points[i] = MathUtils.multiply(cameraMatrix, triangle.points[i]);
+                viewedTriangle.textureCoordinates[i] = triangle.textureCoordinates[i];
             }
             
+            viewedTriangle.textured = triangle.textured;
+    
+            System.out.println("tri:"+triangle);
+            System.out.println("orig"+camera.origin);
+            System.out.println("look"+camera.lookDirection);
+            System.out.println("view"+viewedTriangle);
+    
             Triangle[] clippedTriangles = MathUtils.clipAgainstPlane(new Vector(0.0f, 0.0f, 0.1f), new Vector(0.0f, 0.0f, 1.0f), viewedTriangle);
             
             for (Triangle t : clippedTriangles)
@@ -543,6 +487,9 @@ public class CanvasPanel extends JPanel
                 
                 projectedTriangle.textured = t.textured;
                 projectedTriangle.color = viewedTriangle.color;
+    
+                System.out.println("clip"+t);
+                System.out.println("proj"+projectedTriangle);
                 
                 trianglesToRasterize.add(projectedTriangle);
             }

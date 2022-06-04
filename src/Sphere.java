@@ -1,11 +1,17 @@
+import java.util.ArrayList;
+
 public class Sphere extends GameObject
 {
     int latitudeLines, longitudeLines;
     float radius;
+    private ArrayList<Vector> normals = new ArrayList<>();
     
     Sphere(int latitudeLines, int longitudeLines)
     {
         this(latitudeLines, longitudeLines, false);
+        
+        this.radius = 1.0f;
+        this.position = new Vector(0);
     }
     
     Sphere(Vector center, float radius, int latitudeLines, int longitudeLines)
@@ -39,7 +45,11 @@ public class Sphere extends GameObject
             {
                 theta = j * deltaLongitude;
                 
-                vertices.add(new Vector((float) (Math.cos(phi) * Math.cos(theta)), (float) (Math.sin(phi)) - 1, (float) (Math.cos(phi) * Math.sin(theta))));
+                Vector vertex = new Vector((float) (Math.cos(phi) * Math.cos(theta)), (float) (Math.sin(phi)) - 1, (float) (Math.cos(phi) * Math.sin(theta)));
+                vertices.add(vertex);
+                Vector normal = new Vector(vertex);
+                normal.divide(radius);
+                normals.add(normal);
                 textureCoordinates.add(new Vector2D((float) j / longitudeLines, (float) i / latitudeLines));
             }
         }
@@ -72,6 +82,8 @@ public class Sphere extends GameObject
                 }
             }
         }
+        
+        setColor(color);
         
         generateCollisionBox();
     }

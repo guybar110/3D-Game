@@ -4,7 +4,6 @@ import java.awt.image.BufferedImage;
 public class Triangle
 {
     Vector[] points;
-    Vector normal;
     Vector2D[] textureCoordinates;
     Color color;
     boolean textured;
@@ -60,7 +59,6 @@ public class Triangle
         textureCoordinates[2] = f;
         this.color = DEFAULT_COLOR;
         this.textured = textured;
-        this.normal = normal;
     }
     
     void draw(CanvasPanel viewport)

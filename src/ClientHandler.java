@@ -18,7 +18,6 @@ public class ClientHandler implements Runnable
     private int width, height;
     private ArrayList<Triangle> trianglesToDraw;
     private boolean[] keysPressed;
-    private float[][] depthBuffer;
     private float mouseDX, mouseDY;
     private Vector netForce;
     private float currentVerticalVelocity;
@@ -28,6 +27,7 @@ public class ClientHandler implements Runnable
     public ClientHandler(Game game, Socket socket)
     {
         this.game = game;
+        
         try
         {
             this.socket = socket;
@@ -44,14 +44,14 @@ public class ClientHandler implements Runnable
         {
             closeEverything(socket, bufferedReader, bufferedWriter);
         }
-    
+        
         this.trianglesToDraw = new ArrayList<>();
         this.keysPressed = new boolean[6];
         this.netForce = new Vector(0);
         this.currentVerticalVelocity = 0;
         this.inAir = false;
-        this.depthBuffer = new float[width][height];
         this.camera = new Camera();
+        this.camera.origin.y += this.game.characterHeight;
     }
     
     public void sendMessage(String messageToSend)
@@ -78,9 +78,10 @@ public class ClientHandler implements Runnable
             {
                 try
                 {
-                    messageFromClient = bufferedReader.readLine();
-                    
-                    handleClientMessage(messageFromClient);
+                    while ((messageFromClient = bufferedReader.readLine()) != null)
+                    {
+                        handleClientMessage(messageFromClient);
+                    }
                 }
                 catch (IOException e)
                 {
@@ -96,7 +97,7 @@ public class ClientHandler implements Runnable
         if (message.startsWith("keys: "))
         {
             String[] keyInfo = message.replaceAll(",", "").split(" ");
-    
+            
             for (int i = 0; i < keysPressed.length; i++)
             {
                 keysPressed[i] = Boolean.parseBoolean(keyInfo[i + 1]);
@@ -106,8 +107,16 @@ public class ClientHandler implements Runnable
         {
             String[] mouseInfo = message.split(" ");
             
-            mouseDX = Float.parseFloat(mouseInfo[1]);
-            mouseDY = Float.parseFloat(mouseInfo[2]);
+            try
+            {
+                mouseDX = Float.parseFloat(mouseInfo[1]);
+                mouseDY = Float.parseFloat(mouseInfo[2]);
+            }
+            catch (NumberFormatException e)
+            {
+                mouseDX = 0;
+                mouseDY = 0;
+            }
         }
     }
     
@@ -115,7 +124,7 @@ public class ClientHandler implements Runnable
     public void remove()
     {
         clientHandlers.remove(this);
-    
+        
         System.out.println("SERVER: " + clientUsername + " has disconnected.");
     }
     
@@ -142,23 +151,17 @@ public class ClientHandler implements Runnable
         {
             e.printStackTrace();
         }
+        
+        System.exit(0);
     }
     
     private void newFrame(float[][] projectionMatrix)
     {
-        long startOfFrame = System.nanoTime();
-    
+        mouseDX = 0;
+        mouseDY = 0;
         sendMessage("Update Mouse");
         
         trianglesToDraw.clear();
-        
-        for (int i = 0; i < width; i++)
-        {
-            for (int j = 0; j < height; j++)
-            {
-                depthBuffer[i][j] = 0.0f;
-            }
-        }
         
         float currentSpeed = game.speed;
         
@@ -170,7 +173,6 @@ public class ClientHandler implements Runnable
         Vector up = new Vector(0.0f, 1.0f, 0.0f);
         Vector target = MathUtils.multiply(camera.lookDirection.normalized(), currentSpeed / game.fps);
         target.y = 0.0f;
-        
         
         if (!Double.isNaN(mouseDX))
         {
@@ -223,59 +225,56 @@ public class ClientHandler implements Runnable
         Vector verticalVelocityVector = MathUtils.multiply(up, currentVerticalVelocity / game.fps);
         
         netForce.add(verticalVelocityVector);
-        
-        int collisionCount = 0;
-        
-        for (GameObject object : game.objects)
-        {
-            boolean collision = false;
-            if (object instanceof Sphere)
-            {
-                float radius = ((Sphere) object).radius;
-                
-                if (object.scale.x == radius && object.scale.y == radius && object.scale.z == radius)
-                {
-                    collision = MathUtils.sphereSphereCollisionDetection(MathUtils.add(MathUtils.add(camera.origin, netForce), new Vector(0, game.characterHeight * 0.5f, 0)), game.collisionSphereRadius, (Sphere) object);
-                }
-                else
-                {
-                    collision = MathUtils.sphereBoxCollisionDetection(MathUtils.add(MathUtils.add(camera.origin, netForce), new Vector(0, game.characterHeight * 0.5f, 0)), game.collisionSphereRadius, object.collisionBox);
-                }
-            }
-            else if (object instanceof Hyperrectangle)
-            {
-                collision = MathUtils.collisionDetection(MathUtils.add(MathUtils.add(camera.origin, netForce), new Vector(0, game.characterHeight * 0.5f, 0)), game.collisionSphereRadius, object);
-            }
-            
-            if (collision)
-            {
-                collisionCount++;
-                
-                if (camera.origin.y - game.characterHeight / 2 >= object.collisionBox.floorLevel)
-                {
-                    inAir = false;
-                    currentVerticalVelocity = 0.0f;
-                    // netForce.y = 0.0f;
-                    camera.origin.y = object.collisionBox.floorLevel + game.characterHeight;
-                }
-                else
-                {
-                    netForce = new Vector(0.0f);
-                }
-                
-                for (Triangle t : object.triangles)
-                {
-                    t.color = Color.red;
-                }
-            }
-            else
-            {
-                for (Triangle t : object.triangles)
-                {
-                    t.color = object.color;
-                }
-            }
-        }
+
+//        for (GameObject object : game.objects)
+//        {
+//            boolean collision = false;
+//            if (object instanceof Sphere)
+//            {
+//                float radius = ((Sphere) object).radius;
+//
+//                if (object.scale.x == radius && object.scale.y == radius && object.scale.z == radius)
+//                {
+//                    collision = MathUtils.sphereSphereCollisionDetection(MathUtils.add(MathUtils.add(camera.origin, netForce), new Vector(0, game.characterHeight * 0.5f, 0)), game.collisionSphereRadius, (Sphere) object);
+//                }
+//                else
+//                {
+//                    collision = MathUtils.sphereBoxCollisionDetection(MathUtils.add(MathUtils.add(camera.origin, netForce), new Vector(0, game.characterHeight * 0.5f, 0)), game.collisionSphereRadius, object.collisionBox);
+//                }
+//            }
+//            else if (object instanceof Hyperrectangle)
+//            {
+//                collision = MathUtils.collisionDetection(MathUtils.add(MathUtils.add(camera.origin, netForce), new Vector(0, game.characterHeight * 0.5f, 0)), game.collisionSphereRadius, game.objects);
+//            }
+//
+//            if (collision)
+//            {
+//
+//                if (camera.origin.y - game.characterHeight / 2 >= object.collisionBox.floorLevel)
+//                {
+//                    inAir = false;
+//                    currentVerticalVelocity = 0.0f;
+//                    // netForce.y = 0.0f;
+//                    camera.origin.y = object.collisionBox.floorLevel + game.characterHeight;
+//                }
+//                else
+//                {
+//                    netForce = new Vector(0.0f);
+//                }
+//
+//                for (Triangle t : object.triangles)
+//                {
+//                    t.color = Color.red;
+//                }
+//            }
+//            else
+//            {
+//                for (Triangle t : object.triangles)
+//                {
+//                    t.color = object.color;
+//                }
+//            }
+//        }
         
         camera.origin.add(netForce);
         
@@ -305,15 +304,6 @@ public class ClientHandler implements Runnable
             String triangleColor = " " + t.color.getRed() + " " + t.color.getGreen() + " " + t.color.getBlue();
             sendMessage("triangle: " + triangleString + triangleColor);
         }
-    
-        try
-        {
-            Thread.sleep(1000 / game.fps - (System.nanoTime() - startOfFrame) / 1000000);
-        }
-        catch (InterruptedException e)
-        {
-            e.printStackTrace();
-        }
     }
     
     void calculateTriangles(Triangle triangle, float[][] projectionMatrix, float[][] cameraMatrix)
@@ -328,26 +318,23 @@ public class ClientHandler implements Runnable
         normal.normalize();
         
         Vector cameraRay = MathUtils.subtract(triangle.points[0], camera.origin);
-        
+    
         if (MathUtils.dot(normal, cameraRay) < 0)
         {
-            if (!triangle.textured)
+            Vector lightDirection = new Vector(-1.0f, 0.5f, -1.0f);
+            lightDirection.normalize();
+            float luminance = MathUtils.dot(lightDirection, normal);
+            
+            if (luminance > 1.0f)
             {
-                Vector lightDirection = new Vector(-1.0f, 0.5f, -1.0f);
-                lightDirection.normalize();
-                float luminance = MathUtils.dot(lightDirection, normal);
-                
-                if (luminance > 1.0f)
-                {
-                    luminance = 1.0f;
-                }
-                else if (luminance < 0.4f)
-                {
-                    luminance = 0.4f;
-                }
-                
-                viewedTriangle.color = new Color(luminance * triangle.color.getRed() / 255.0f, luminance * triangle.color.getGreen() / 255.0f, luminance * triangle.color.getBlue() / 255.0f);
+                luminance = 1.0f;
             }
+            else if (luminance < 0.4f)
+            {
+                luminance = 0.4f;
+            }
+            
+            viewedTriangle.color = new Color(luminance * triangle.color.getRed() / 255.0f, luminance * triangle.color.getGreen() / 255.0f, luminance * triangle.color.getBlue() / 255.0f);
             
             for (int i = 0; i < 3; i++)
             {
@@ -377,7 +364,7 @@ public class ClientHandler implements Runnable
                 }
                 
                 projectedTriangle.textured = t.textured;
-                projectedTriangle.color = viewedTriangle.color;
+                projectedTriangle.color = t.color;
                 
                 trianglesToRasterize.add(projectedTriangle);
             }
@@ -443,8 +430,8 @@ public class ClientHandler implements Runnable
         while (!socket.isClosed())
         {
             newFrame(projectionMatrix);
-            System.out.println(camera.origin);
-            System.out.println(camera.lookDirection);
+//            System.out.println(camera.origin);
+//            System.out.println(camera.lookDirection);
         }
     }
 }

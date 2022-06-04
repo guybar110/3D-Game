@@ -17,7 +17,6 @@ public class Client extends JPanel
     static final int PORT = 14311;
     static final String HOST = "localhost";
     
-    private JFrame frame;
     private Socket socket;
     private BufferedReader bufferedReader;
     private BufferedWriter bufferedWriter;
@@ -25,7 +24,7 @@ public class Client extends JPanel
     private boolean[] keysPressed;
     private Point mousePosition;
     private Robot robot;
-    private ArrayList<Triangle> trianglesToDraw;
+    private ArrayList<Triangle> updatedTriangles;
     private static InputMap inputMap;
     private static ActionMap actionMap;
     private int width, height, screenWidth, screenHeight;
@@ -60,17 +59,7 @@ public class Client extends JPanel
         this.height = height;
         this.screenWidth = Toolkit.getDefaultToolkit().getScreenSize().width;
         this.screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
-        this.trianglesToDraw = new ArrayList<>();
-        
-        this.frame = new JFrame("3D Game | " + username);
-        this.frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        this.frame.setSize(new Dimension(width, height));
-        this.frame.setVisible(true);
-        this.frame.add(this);
-        this.frame.toFront();
-        BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
-        Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0, 0), "blank cursor");
-        frame.getContentPane().setCursor(blankCursor);
+        this.updatedTriangles = new ArrayList<>();
         
         try
         {
@@ -201,32 +190,22 @@ public class Client extends JPanel
     {
         super.paintComponent(g);
         
-        if (trianglesToDraw.size() == 0)
-        {
-            return;
-        }
+        ArrayList<Triangle> trianglesToDraw = new ArrayList<>(updatedTriangles);
+        trianglesToDraw.removeIf(Objects::isNull);
         
         g.setColor(Color.black);
         g.fillRect(0, 0, width, height);
         
-        try
+        for (Triangle t : trianglesToDraw)
         {
-            for (Iterator<Triangle> iterator = trianglesToDraw.iterator(); iterator.hasNext(); )
-            {
-                Triangle t = iterator.next();
-                g.setColor(t.color);
-        
-                int[] xValues = {(int) t.points[0].x, (int) t.points[1].x, (int) t.points[2].x};
-                int[] yValues = {(int) t.points[0].y, (int) t.points[1].y, (int) t.points[2].y};
-        
-                g.fillPolygon(new Polygon(xValues, yValues, 3));
-                g.setColor(Color.white);
-                // g.drawPolygon(new Polygon(xValues, yValues, 3));
-            }
-        }
-        catch (ConcurrentModificationException e)
-        {
-            e.printStackTrace();
+            g.setColor(t.color);
+            
+            int[] xValues = {(int) t.points[0].x, (int) t.points[1].x, (int) t.points[2].x};
+            int[] yValues = {(int) t.points[0].y, (int) t.points[1].y, (int) t.points[2].y};
+            
+            g.fillPolygon(new Polygon(xValues, yValues, 3));
+            // g.setColor(Color.white);
+            // g.drawPolygon(new Polygon(xValues, yValues, 3));
         }
         
         // g.drawImage(crosshair, getWidth() / 2 - crosshair.getWidth() / 2, getHeight() / 2 - crosshair.getHeight() / 2, null);
@@ -256,8 +235,10 @@ public class Client extends JPanel
             {
                 try
                 {
-                    msgFromServer = bufferedReader.readLine();
-                    handleMessageFromServer(msgFromServer);
+                    while ((msgFromServer = bufferedReader.readLine()) != null)
+                    {
+                        handleMessageFromServer(msgFromServer);
+                    }
                 }
                 catch (IOException e)
                 {
@@ -269,8 +250,6 @@ public class Client extends JPanel
     
     public void handleMessageFromServer(String message) throws IOException
     {
-//        System.out.println(message);
-        
         if (message.contains("Update Mouse"))
         {
             mousePosition = MouseInfo.getPointerInfo().getLocation();
@@ -287,7 +266,7 @@ public class Client extends JPanel
         }
         else if (message.equals("clear triangles"))
         {
-            trianglesToDraw.clear();
+            updatedTriangles.clear();
         }
         else if (message.startsWith("triangle"))
         {
@@ -299,7 +278,7 @@ public class Client extends JPanel
                 new Color(Integer.parseInt(triangleInfo[10]), Integer.parseInt(triangleInfo[11]), Integer.parseInt(triangleInfo[12]))
             );
             
-            trianglesToDraw.add(t);
+            updatedTriangles.add(t);
         }
     }
     
@@ -345,6 +324,16 @@ public class Client extends JPanel
         
         Client client = new Client(socket, username, width, height);
         
+        JFrame frame = new JFrame("3D Game | " + username);
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.setSize(new Dimension(width, height));
+        frame.setVisible(true);
+        frame.add(client);
+        
+        BufferedImage cursorImg = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+        Cursor blankCursor = Toolkit.getDefaultToolkit().createCustomCursor(cursorImg, new Point(0, 0), "blank cursor");
+        frame.getContentPane().setCursor(blankCursor);
+        
         // Infinite loop to read messages.
         client.listenForMessages();
         
@@ -360,7 +349,7 @@ public class Client extends JPanel
             
             client.repaint();
             client.grabFocus();
-            client.frame.toFront();
+            frame.toFront();
         }
     }
 }
