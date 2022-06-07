@@ -1,31 +1,28 @@
 import java.awt.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Game
+public class Game implements Serializable
 {
-    float gravity, jumpHeight, speed, sensitivity, characterHeight, collisionSphereRadius, roomSize, roomHeight;
-    int fps;
-    
+    float gravity, jumpHeight, speed, characterHeight, collisionSphereRadius;
     ArrayList<GameObject> objects;
+    ArrayList<Player> players;
     
     Game()
     {
-        this.fps = 60;
         this.gravity = 9.80665f;
         this.jumpHeight = 0.5f;
         this.speed = 2.0f;
-        this.sensitivity = 0.3f;
         this.characterHeight = 1.8f;
         this.collisionSphereRadius = 0.9f;
-        this.roomSize = 10.0f;
-        this.roomHeight = 10.0f;
         
         this.objects = new ArrayList<>();
+        this.players = new ArrayList<>();
         
-        setUpObjects();
+        setUpObjects(10.0f, 10.0f);
     }
     
-    private void setUpObjects()
+    private void setUpObjects(float roomSize, float roomHeight)
     {
         Hyperrectangle ground = new Hyperrectangle(new Vector(-roomSize / 2, 0, -roomSize / 2), new Vector(roomSize / 2, 0.0f, roomSize / 2));
         Hyperrectangle northWall = new Hyperrectangle(new Vector(roomSize / 2, 0.0f, roomSize / 2), new Vector(-roomSize / 2, roomHeight, roomSize / 2));

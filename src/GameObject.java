@@ -1,8 +1,9 @@
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class GameObject
+public abstract class GameObject implements Serializable
 {
     ArrayList<Vector> vertices;
     ArrayList<Vector2D> textureCoordinates;

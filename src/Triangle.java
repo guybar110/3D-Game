@@ -1,7 +1,8 @@
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.Serializable;
 
-public class Triangle
+public class Triangle implements Serializable
 {
     Vector[] points;
     Vector2D[] textureCoordinates;

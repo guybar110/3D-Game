@@ -5,7 +5,7 @@ import java.util.ArrayList;
 
 public class Server
 {
-    static final int PORT = 14311;
+    static final int PORT = 14312;
     static final int NUMBER_OF_PLAYERS = 4;
     private final ServerSocket serverSocket;
     
@@ -27,12 +27,15 @@ public class Server
             {
                 Socket socket = serverSocket.accept();
                 
-                if (clientHandlers.size() % NUMBER_OF_PLAYERS == 0)
+                int id = ClientHandler.clientHandlers.size() % NUMBER_OF_PLAYERS;
+                System.out.println(id);
+                
+                if (id == 0)
                 {
                     games.add(new Game());
                 }
                 
-                ClientHandler clientHandler = new ClientHandler(games.get(games.size() - 1), socket);
+                ClientHandler clientHandler = new ClientHandler(games.get(games.size() - 1), id, socket);
                 Thread thread = new Thread(clientHandler);
                 thread.start();
             }
@@ -64,5 +67,4 @@ public class Server
         Server server = new Server(serverSocket);
         server.startServer();
     }
-    
 }

@@ -182,16 +182,6 @@ public class MathUtils
         return subtract(collisionSphereOrigin, sphere.position).getLength() < collisionSphereRadius + sphere.radius;
     }
     
-    public static boolean sphereBoxCollisionDetection(Vector collisionSphereOrigin, float collisionSphereRadius, Hyperrectangle boundingBox)
-    {
-        Vector minPoint = boundingBox.vertices.get(0), maxPoint = boundingBox.vertices.get(6);
-        
-        float x = Math.max(minPoint.x, Math.min(collisionSphereOrigin.x, maxPoint.x));
-        float y = Math.max(minPoint.y, Math.min(collisionSphereOrigin.y, maxPoint.y));
-        float z = Math.max(minPoint.z, Math.min(collisionSphereOrigin.z, maxPoint.z));
-        return subtract(new Vector(x, y, z), collisionSphereOrigin).getLength2() < collisionSphereRadius * collisionSphereRadius;
-    }
-    
     public static Vector collisionDetection(Vector collisionSphereOrigin, float collisionSphereRadius, ArrayList<GameObject> objects)
     {
         int collisionCount = 0;

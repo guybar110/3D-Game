@@ -159,7 +159,7 @@ public class CanvasPanel extends JPanel
         objects.add(southWall);
         objects.add(eastWall);
         objects.add(ceiling);
-        // objects.add(sphere);
+        objects.add(sphere);
         
         try
         {
@@ -304,16 +304,33 @@ public class CanvasPanel extends JPanel
         
         if (!Double.isNaN(dx))
         {
-            camera.yaw += sensitivity * dx;
+            camera.yaw -= sensitivity * dx;
+            
+            while (camera.yaw < 0.0f)
+            {
+                camera.yaw += 360.0f;
+            }
+            while (camera.yaw >= 360.0f)
+            {
+                camera.yaw -= 360.0f;
+            }
+    
+            System.out.println("yaw:   " + camera.yaw);
         }
         if (!Double.isNaN(dy))
         {
-            float newPitch = camera.pitch + sensitivity * dy;
-            
-            if (newPitch < 180.0f && newPitch > -180.0f)
+            camera.pitch -= sensitivity * dy;
+    
+            if (camera.pitch > 180.0f)
             {
-                camera.pitch += sensitivity * dy;
+                camera.pitch = 179.0f;
             }
+            else if (camera.pitch < -180.0f)
+            {
+                camera.pitch = -179.0f;
+            }
+            
+            System.out.println("pitch: " + camera.pitch);
         }
         
         netForce = new Vector(0.0f);
@@ -372,17 +389,17 @@ public class CanvasPanel extends JPanel
             }
         }
     
-        System.out.println(camera.origin);
+        // System.out.println(camera.origin);
         
         camera.origin.add(netForce);
         
-        float[][] pitchCameraRotationMatrix = MathUtils.makePitchRotationMatrix(camera.pitch);
+        float[][] pitchCameraRotationMatrix = MathUtils.makePitchRotationMatrix(-camera.pitch);
         float[][] yawCameraRotationMatrix = MathUtils.makeYawRotationMatrix(camera.yaw);
         
         float[][] cameraRotationMatrix = MathUtils.multiply(pitchCameraRotationMatrix, yawCameraRotationMatrix);
         
         Vector forward = new Vector(0.0f, 0.0f, 1.0f);
-        camera.lookDirection = MathUtils.multiply(cameraRotationMatrix, forward);
+        camera.lookDirection = MathUtils.multiply(pitchCameraRotationMatrix, forward);
         target = MathUtils.add(camera.origin, camera.lookDirection);
         
         float[][] cameraMatrix = (MathUtils.inverseMatrix(camera.pointAt(target, up)));
@@ -460,11 +477,6 @@ public class CanvasPanel extends JPanel
             
             viewedTriangle.textured = triangle.textured;
     
-            System.out.println("tri:"+triangle);
-            System.out.println("orig"+camera.origin);
-            System.out.println("look"+camera.lookDirection);
-            System.out.println("view"+viewedTriangle);
-    
             Triangle[] clippedTriangles = MathUtils.clipAgainstPlane(new Vector(0.0f, 0.0f, 0.1f), new Vector(0.0f, 0.0f, 1.0f), viewedTriangle);
             
             for (Triangle t : clippedTriangles)
@@ -487,9 +499,6 @@ public class CanvasPanel extends JPanel
                 
                 projectedTriangle.textured = t.textured;
                 projectedTriangle.color = viewedTriangle.color;
-    
-                System.out.println("clip"+t);
-                System.out.println("proj"+projectedTriangle);
                 
                 trianglesToRasterize.add(projectedTriangle);
             }
@@ -546,7 +555,7 @@ public class CanvasPanel extends JPanel
     
     GameObject parseObjectFile(String path, boolean hasTexture)
     {
-        GameObject object = new GameObject();
+        GameObject object = null;
         try (BufferedReader br = new BufferedReader(new FileReader(new File(path))))
         {
             String line;

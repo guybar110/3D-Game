@@ -1,4 +1,6 @@
-public class Vector
+import java.io.Serializable;
+
+public class Vector implements Serializable
 {
     float x, y, z, w;
     
