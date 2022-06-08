@@ -2,19 +2,16 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="476fc5d7-526f-4a59-8c5f-9592478da755" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/Player.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Camera.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Camera.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/CanvasPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/CanvasPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/CanvasPanel.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Client.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Client.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/ClientHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/ClientHandler.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Game.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Game.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/GameObject.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/GameObject.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Main.java" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/MathUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/MathUtils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Server.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Player.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Player.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Triangle.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Triangle.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Vector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Vector.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Vector2D.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Vector2D.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -167,34 +164,34 @@
       <screen x="0" y="0" width="1920" height="1032" />
     </state>
     <state x="414" y="170" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1920.1032@0.0.1920.1032" timestamp="1652789053074" />
-    <state x="730" y="216" key="#com.intellij.ide.util.MemberChooser" timestamp="1652806395871">
+    <state x="730" y="216" key="#com.intellij.ide.util.MemberChooser" timestamp="1654606023651">
       <screen x="0" y="0" width="1920" height="1032" />
     </state>
-    <state x="730" y="216" key="#com.intellij.ide.util.MemberChooser/0.0.1920.1032@0.0.1920.1032" timestamp="1652806395871" />
+    <state x="730" y="216" key="#com.intellij.ide.util.MemberChooser/0.0.1920.1032@0.0.1920.1032" timestamp="1654606023651" />
     <state x="0" y="0" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1652523219531">
       <screen x="0" y="0" width="1920" height="1032" />
     </state>
     <state x="0" y="0" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog/0.0.1920.1032@0.0.1920.1032" timestamp="1652523219531" />
-    <state x="690" y="262" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1654529326545">
+    <state x="690" y="262" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1654639021519">
       <screen x="0" y="0" width="1920" height="1032" />
     </state>
-    <state x="690" y="262" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1920.1032@0.0.1920.1032" timestamp="1654529326545" />
-    <state width="1877" height="189" key="GridCell.Tab.0.bottom" timestamp="1654603991906">
+    <state x="690" y="262" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1920.1032@0.0.1920.1032" timestamp="1654639021519" />
+    <state width="1877" height="189" key="GridCell.Tab.0.bottom" timestamp="1654646428589">
       <screen x="0" y="0" width="1920" height="1032" />
     </state>
-    <state width="1877" height="189" key="GridCell.Tab.0.bottom/0.0.1920.1032@0.0.1920.1032" timestamp="1654603991906" />
-    <state width="1877" height="189" key="GridCell.Tab.0.center" timestamp="1654603991906">
+    <state width="1877" height="189" key="GridCell.Tab.0.bottom/0.0.1920.1032@0.0.1920.1032" timestamp="1654646428589" />
+    <state width="1877" height="189" key="GridCell.Tab.0.center" timestamp="1654646428588">
       <screen x="0" y="0" width="1920" height="1032" />
     </state>
-    <state width="1877" height="189" key="GridCell.Tab.0.center/0.0.1920.1032@0.0.1920.1032" timestamp="1654603991906" />
-    <state width="1877" height="189" key="GridCell.Tab.0.left" timestamp="1654603991906">
+    <state width="1877" height="189" key="GridCell.Tab.0.center/0.0.1920.1032@0.0.1920.1032" timestamp="1654646428588" />
+    <state width="1877" height="189" key="GridCell.Tab.0.left" timestamp="1654646428588">
       <screen x="0" y="0" width="1920" height="1032" />
     </state>
-    <state width="1877" height="189" key="GridCell.Tab.0.left/0.0.1920.1032@0.0.1920.1032" timestamp="1654603991906" />
-    <state width="1877" height="189" key="GridCell.Tab.0.right" timestamp="1654603991906">
+    <state width="1877" height="189" key="GridCell.Tab.0.left/0.0.1920.1032@0.0.1920.1032" timestamp="1654646428588" />
+    <state width="1877" height="189" key="GridCell.Tab.0.right" timestamp="1654646428588">
       <screen x="0" y="0" width="1920" height="1032" />
     </state>
-    <state width="1877" height="189" key="GridCell.Tab.0.right/0.0.1920.1032@0.0.1920.1032" timestamp="1654603991906" />
+    <state width="1877" height="189" key="GridCell.Tab.0.right/0.0.1920.1032@0.0.1920.1032" timestamp="1654646428588" />
     <state x="702" y="144" key="refactoring.ChangeSignatureDialog" timestamp="1654532123756">
       <screen x="0" y="0" width="1920" height="1032" />
     </state>

@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class MathUtils
 {
@@ -124,19 +125,6 @@ public class MathUtils
         return rotationMatrix;
     }
     
-    public static float[][] makeTranslationMatrix(float x, float y, float z)
-    {
-        float[][] translationMatrix = new float[4][4];
-        translationMatrix[0][0] = 1.0f;
-        translationMatrix[1][1] = 1.0f;
-        translationMatrix[2][2] = 1.0f;
-        translationMatrix[3][3] = 1.0f;
-        translationMatrix[3][0] = x;
-        translationMatrix[3][1] = y;
-        translationMatrix[3][2] = z;
-        return translationMatrix;
-    }
-    
     public static float[][] makeProjectionMatrix(float fov, float aspectRatio, float zNear, float zFar)
     {
         // float fovRad = (float) (1.0f / Math.tan(fov * 0.5f / 180.0f * Math.PI));
@@ -153,136 +141,171 @@ public class MathUtils
         return projectionMatrix;
     }
     
-    public static Vector2D projectInto2D(Vector planeX, Vector planeY, Vector point)
+    public static boolean isPointInside3DTriangle(Vector p, Triangle t)
     {
-        return new Vector2D(point.dot(planeX), point.dot(planeY));
+        Vector a = subtract(t.points[0], p);
+        Vector b = subtract(t.points[1], p);
+        Vector c = subtract(t.points[2], p);
+        
+        Vector u = cross(b, c);
+        Vector v = cross(c, a);
+        Vector w = cross(a, b);
+    
+        return !((dot(u, v) < 0.0f) || dot(u, w) < 0.0f);
     }
     
-    public static boolean isInside2DTriangle(Vector2D point, Vector2D[] trianglePoints)
+    public synchronized static Player shoot(Player player, ArrayList<GameObject> objects, ArrayList<Player> players)
     {
-        for (int i = 0; i < trianglePoints.length; i++)
+        Vector rayStart = add(player.camera.origin, multiply(player.camera.lookDirection, 0.1f));
+        Vector rayEnd = add(multiply(player.camera.lookDirection, 1000), rayStart);
+    
+        ArrayList<GameObject> objectsCollidedWith = new ArrayList<>();
+        ArrayList<Float> tValues = new ArrayList<>();
+    
+        ArrayList<GameObject> allObjects = new ArrayList<>(objects);
+    
+        for (Player p : players)
         {
-            int next = i + 1;
-            if (next == trianglePoints.length)
+            if (p.id != player.id)
             {
-                next = 0;
-            }
-            
-            if (triangle2DArea(trianglePoints[i], trianglePoints[next], point) <= 0.0f)
-            {
-                return false;
+                allObjects.add(p.model);
             }
         }
-        
-        return true;
-    }
     
-    public static boolean sphereSphereCollisionDetection(Vector collisionSphereOrigin, float collisionSphereRadius, Sphere sphere)
-    {
-        return subtract(collisionSphereOrigin, sphere.position).getLength() < collisionSphereRadius + sphere.radius;
-    }
-    
-    public static Vector collisionDetection(Vector collisionSphereOrigin, float collisionSphereRadius, ArrayList<GameObject> objects)
-    {
-        int collisionCount = 0;
-        Vector shiftDelta = new Vector(0);
-        
-        for (GameObject object : objects)
+        for (GameObject object : allObjects)
         {
-            if (object instanceof Sphere)
-            {
-                boolean collision = sphereSphereCollisionDetection(collisionSphereOrigin, collisionSphereRadius, (Sphere) object);
-                
-                if (collision)
-                {
-                    collisionCount++;
-                }
-                continue;
-            }
-            
-            if (object.collisionBox.floorLevel == collisionSphereOrigin.y - collisionSphereRadius)
-            {
-                continue;
-            }
-            
             for (Triangle t : object.triangles)
             {
-                float collisionSphereRadius2 = collisionSphereRadius * collisionSphereRadius;
-                
-                boolean fullyInsideTriangle = false;
-                boolean outsideAllVertices = true;
-                boolean outsideAllEdges = true;
-                
                 Vector line1 = MathUtils.subtract(t.points[1], t.points[0]);
                 Vector line2 = MathUtils.subtract(t.points[2], t.points[0]);
-                
-                Vector normal = cross(line1, line2);
-                
-                if (cross(line1, line2).getLength() == 0)
+                Vector normal = cross(line1, line2).normalized();
+            
+                Intersection i = intersectPlane(t.points[0], normal, rayStart, rayEnd);
+            
+                if (!i.intersection || i.t < 0 || !isPointInside3DTriangle(i.p, t))
                 {
                     continue;
                 }
                 
-                normal.normalize();
-                
-                float d = -dot(normal, t.points[0]);
-                float distanceFromPlane = dot(normal, collisionSphereOrigin) + d;
-                
-                if (Math.abs(distanceFromPlane) > collisionSphereRadius)
+                if (dot(subtract(rayEnd, rayStart), normal) < 0.0f)
                 {
-                    continue;
+                    objectsCollidedWith.add(object);
+                    tValues.add(i.t);
                 }
-                
-                Vector a = subtract(t.points[1], t.points[0]);
-                Vector b = subtract(t.points[2], t.points[1]);
-                Vector c = subtract(t.points[0], t.points[2]);
-                
-                Vector planeX = a.normalized();
-                Vector planeY = normal.cross(a).normalized();
-                
-                Vector2D planePos2D = projectInto2D(planeX, planeY, collisionSphereOrigin);
-                Vector2D[] trianglePoints2D = new Vector2D[]{projectInto2D(planeX, planeY, t.points[0]), projectInto2D(planeX, planeY, t.points[1]), projectInto2D(planeX, planeY, t.points[2])};
-                
-                if (isInside2DTriangle(planePos2D, trianglePoints2D))
-                {
-                    fullyInsideTriangle = true;
-                }
-                
-                for (int i = 0; i < 3; i++)
-                {
-                    if (subtract(t.points[i], collisionSphereOrigin).getLength2() <= collisionSphereRadius2)
-                    {
-                        outsideAllVertices = false;
-                    }
-                }
-                
-                if
-                (
-                    intersectRaySegmentSphere(t.points[0], a, collisionSphereOrigin, collisionSphereRadius2).intersection ||
-                        intersectRaySegmentSphere(t.points[1], b, collisionSphereOrigin, collisionSphereRadius2).intersection ||
-                        intersectRaySegmentSphere(t.points[2], c, collisionSphereOrigin, collisionSphereRadius2).intersection
-                )
-                {
-                    outsideAllEdges = false;
-                }
-                
-                if (outsideAllEdges && outsideAllVertices && !fullyInsideTriangle)
-                {
-                    continue;
-                }
-                
-                shiftDelta.add(multiply(normal, collisionSphereRadius - distanceFromPlane));
-                collisionCount++;
             }
         }
-        
-        if (collisionCount != 0)
+    
+        if (objectsCollidedWith.isEmpty())
         {
-            shiftDelta.divide(collisionCount);
-            return shiftDelta.normalized();
+            return null;
+        }
+    
+        for (int i = 0; i < tValues.size() - 1; i++)
+        {
+            for (int j = i + 1; j < tValues.size(); j++)
+            {
+                if (tValues.get(j) < tValues.get(i))
+                {
+                    Collections.swap(tValues, i, j);
+                    Collections.swap(objectsCollidedWith, i, j);
+                }
+            }
+        }
+    
+        GameObject firstObjectCollided = objectsCollidedWith.get(0);
+        
+        for (Player p : players)
+        {
+            if (p.model == firstObjectCollided)
+            {
+                return p;
+            }
         }
         
         return null;
+    }
+    
+    public static Vector collisionDetection(Player player, Vector netForce, Game game)
+    {
+        ArrayList<GameObject> objectsCollidedWith = new ArrayList<>();
+        ArrayList<Triangle> trianglesCollidedWith = new ArrayList<>();
+        ArrayList<Float> tValues = new ArrayList<>();
+        
+        ArrayList<GameObject> allObjects = new ArrayList<>(game.objects);
+        
+        for (Player p : game.players)
+        {
+            if (p.id != player.id)
+            {
+                allObjects.add(p.model);
+            }
+        }
+        
+        for (GameObject object : allObjects)
+        {
+            for (Triangle t : object.triangles)
+            {
+                Vector line1 = MathUtils.subtract(t.points[1], t.points[0]);
+                Vector line2 = MathUtils.subtract(t.points[2], t.points[0]);
+                Vector normal = cross(line1, line2).normalized();
+                
+                Intersection i = intersectPlane(t.points[0], normal, player.position, add(player.position, netForce));
+                
+                if (!i.intersection || i.t * i.t > netForce.getLength2() || i.t < 0 || !isPointInside3DTriangle(i.p, t))
+                {
+                    continue;
+                }
+    
+                if (dot(netForce.normalized(), normal) > 0.0f)
+                {
+                    System.out.println(normal);
+                    trianglesCollidedWith.add(t);
+                    objectsCollidedWith.add(object);
+                    tValues.add(i.t);
+                }
+            }
+        }
+        
+        if (objectsCollidedWith.isEmpty())
+        {
+            return new Vector(0.0f);
+        }
+    
+        for (int i = 0; i < tValues.size() - 1; i++)
+        {
+            for (int j = i + 1; j < tValues.size(); j++)
+            {
+                if (tValues.get(j) < tValues.get(i))
+                {
+                    Collections.swap(tValues, i, j);
+                    Collections.swap(objectsCollidedWith, i, j);
+                    Collections.swap(trianglesCollidedWith, i, j);
+                }
+            }
+        }
+        
+        GameObject firstObjectCollided = objectsCollidedWith.get(0);
+        Vector shiftDelta = new Vector(0);
+        int collisionCount = 0;
+        
+        for (Triangle t : trianglesCollidedWith)
+        {
+            Vector line1 = MathUtils.subtract(t.points[1], t.points[0]);
+            Vector line2 = MathUtils.subtract(t.points[2], t.points[0]);
+            Vector normal = cross(line1, line2).normalized();
+            
+            if (firstObjectCollided.triangles.contains(t))
+            {
+                collisionCount++;
+                shiftDelta.add(normal);
+            }
+        }
+        
+        shiftDelta.divide(collisionCount);
+        
+        // TODO if y of normal = 0, just "land" player
+        
+        return shiftDelta;
     }
     
     public static Intersection intersectRaySegmentSphere(Vector rayOrigin, Vector rayDirection, Vector sphereOrigin, float collisionSphereRadius2)

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class Game implements Serializable
 {
-    float gravity, jumpHeight, speed, characterHeight, collisionSphereRadius;
+    float gravity, jumpHeight, speed, characterHeight, collisionSphereRadius, damage, startingHealth;
     ArrayList<GameObject> objects;
     ArrayList<Player> players;
     
@@ -15,6 +15,8 @@ public class Game implements Serializable
         this.speed = 2.0f;
         this.characterHeight = 1.8f;
         this.collisionSphereRadius = 0.9f;
+        this.damage = 40.0f;
+        this.startingHealth = 100.0f;
         
         this.objects = new ArrayList<>();
         this.players = new ArrayList<>();
@@ -41,31 +43,11 @@ public class Game implements Serializable
         objects.add(southWall);
         objects.add(eastWall);
         objects.add(ceiling);
-        objects.add(sphere);
+        // objects.add(sphere);
     
         for (GameObject object : objects)
         {
-            for (Vector p : object.vertices)
-            {
-                p.x *= object.scale.x;
-                p.y *= object.scale.y;
-                p.z *= object.scale.z;
-            
-                float[][] xObjectRotationMatrix = MathUtils.makePitchRotationMatrix(object.rotation.x);
-                float[][] yObjectRotationMatrix = MathUtils.makeYawRotationMatrix(object.rotation.y);
-                float[][] zObjectRotationMatrix = MathUtils.makeRollRotationMatrix(object.rotation.z);
-                float[][] xyzObjectRotationMatrix = MathUtils.multiply(MathUtils.multiply(zObjectRotationMatrix, xObjectRotationMatrix), yObjectRotationMatrix);
-                Vector rotatedPoint = MathUtils.multiply(p, xyzObjectRotationMatrix);
-            
-                p.x = rotatedPoint.x;
-                p.y = rotatedPoint.y;
-                p.z = rotatedPoint.z;
-            
-                p.x += object.position.x;
-                p.y += object.position.y;
-                p.z += object.position.z;
-            }
-        
+            object.update();
             object.generateTriangles();
         }
     }

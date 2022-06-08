@@ -3,6 +3,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.Socket;
@@ -15,7 +17,7 @@ import java.util.Scanner;
 // Each communication with a client is added to an array list so any message sent gets sent to every other client
 // by looping through it.
 
-public class Client extends JPanel
+public class Client extends JPanel implements MouseListener
 {
     static final int PORT = 14312;
     static final String HOST = "localhost";
@@ -28,7 +30,7 @@ public class Client extends JPanel
     private Robot robot;
     private ArrayList<Triangle> trianglesToDraw;
     private int width, height, screenWidth, screenHeight;
-    private int fps = 60;
+    private int fps = 30;
     private float sensitivity = 0.1f;
     private float fov = 135.0f;
     private float zNear = 0.1f;
@@ -36,7 +38,8 @@ public class Client extends JPanel
     private boolean inputEnabled = true;
     private Game newGameState;
     private Player player;
-    BufferedImage crosshair;
+    private BufferedImage crosshair;
+    private Color[] colors = {Color.blue, Color.red, Color.green, Color.yellow};
     
     public Client(Socket socket, int width, int height)
     {
@@ -66,7 +69,7 @@ public class Client extends JPanel
         this.screenWidth = Toolkit.getDefaultToolkit().getScreenSize().width;
         this.screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
         this.trianglesToDraw = new ArrayList<>();
-        this.player = new Player(-1);
+        this.player = new Player(-1, 1.8f);
         
         try
         {
@@ -350,6 +353,8 @@ public class Client extends JPanel
         else
         {
             game = newGameState;
+            player.height = game.characterHeight;
+            player.health = game.startingHealth;
         }
     
         long startOfFrame = System.nanoTime();
@@ -450,9 +455,12 @@ public class Client extends JPanel
         Vector verticalVelocityVector = MathUtils.multiply(up, player.currentVerticalVelocity / fps);
     
         netForce.add(verticalVelocityVector);
-    
+        Vector collisionPush = MathUtils.collisionDetection(player, netForce, game);
+        collisionPush.multiply(currentSpeed);
+        netForce.subtract(collisionPush);
+        
         player.position.add(netForce);
-        player.camera.origin = new Vector(player.position.x, player.position.y + game.characterHeight, player.position.z);
+        player.camera.origin = new Vector(player.position.x, player.position.y + game.characterHeight / 2, player.position.z);
     
         sendMessage("Player Update");
         sendObject(player);
@@ -474,7 +482,25 @@ public class Client extends JPanel
                 renderTriangle(triangle, projectionMatrix, cameraMatrix);
             }
         }
-    
+        
+        for (Player p : game.players)
+        {
+            float radius = 0.45f;
+            player.model = new Sphere(10, 10);
+            player.model.scale = new Vector(radius, p.height, radius);
+            player.model.position = MathUtils.add(p.position, new Vector(0, p.height, 0));
+            player.model.color = colors[p.id];
+            player.model.update();
+            
+            if (p.id != player.id)
+            {
+                for (Triangle triangle : player.model.triangles)
+                {
+                    renderTriangle(triangle, projectionMatrix, cameraMatrix);
+                }
+            }
+        }
+        
         return (System.nanoTime() - startOfFrame) / 1e6f;    // Delta Time in millis
     }
     
@@ -607,6 +633,7 @@ public class Client extends JPanel
         JFrame frame = new JFrame("3D Game | " + username);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setSize(new Dimension(width, height));
+        frame.addMouseListener(client);
         frame.setResizable(false);
         if (fullScreen)
         {
@@ -648,5 +675,47 @@ public class Client extends JPanel
                 client.closeEverything();
             }
         }
+    }
+    
+    @Override
+    public void mouseClicked(MouseEvent e)
+    {
+        if (player == null || newGameState == null)
+        {
+            return;
+        }
+        
+        sendMessage("Shoot");
+        
+//        Player shot = MathUtils.shoot(player, newGameState);
+//
+//        if (shot != null)
+//        {
+//            sendMessage("Shot " + shot.id);
+//        }
+    }
+    
+    @Override
+    public void mousePressed(MouseEvent e)
+    {
+    
+    }
+    
+    @Override
+    public void mouseReleased(MouseEvent e)
+    {
+    
+    }
+    
+    @Override
+    public void mouseEntered(MouseEvent e)
+    {
+    
+    }
+    
+    @Override
+    public void mouseExited(MouseEvent e)
+    {
+    
     }
 }

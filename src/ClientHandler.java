@@ -18,7 +18,7 @@ public class ClientHandler implements Runnable
     public ClientHandler(Game game, int id, Socket socket)
     {
         this.game = game;
-        this.player = new Player(id);
+        this.player = new Player(id, game.characterHeight);
         
         try
         {
@@ -99,6 +99,15 @@ public class ClientHandler implements Runnable
                 }
             }
         }
+        else if (message.equals("Shoot"))
+        {
+            Player shot = MathUtils.shoot(player, game.objects, game.players);
+            
+            if (shot != null)
+            {
+                game.players.get(game.players.indexOf(shot)).health -= game.damage;
+            }
+        }
     }
     
     // If the client disconnects for any reason remove them from the list so a message isn't sent down a broken connection.
@@ -146,11 +155,6 @@ public class ClientHandler implements Runnable
         {
             sendMessage("Game");
             sendObject(game);
-            
-            for (Player p : game.players)
-            {
-                System.out.println(p.id + ": " + p.position);
-            }
         }
     }
 }
