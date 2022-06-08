@@ -256,9 +256,16 @@ public class MathUtils
                     continue;
                 }
     
-                if (dot(netForce.normalized(), normal) > 0.0f)
+                if (dot(netForce.normalized(), normal) < 0.0f)
                 {
-                    System.out.println(normal);
+                    if (normal.x == 0 && normal.y == 1 && normal.z == 0)
+                    {
+                        player.position.y = t.points[0].y;
+                        player.currentVerticalVelocity = 0;
+                        player.inAir = false;
+                        continue;
+                    }
+                    
                     trianglesCollidedWith.add(t);
                     objectsCollidedWith.add(object);
                     tValues.add(i.t);
@@ -302,8 +309,6 @@ public class MathUtils
         }
         
         shiftDelta.divide(collisionCount);
-        
-        // TODO if y of normal = 0, just "land" player
         
         return shiftDelta;
     }
